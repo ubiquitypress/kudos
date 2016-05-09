@@ -83,9 +83,14 @@ class KudosHandler extends Handler {
 		/kudos/index/
 	*/
 	function index($args, &$request) {
+
+		$journal =& $request->getJournal();
+		$issueDao =& DAORegistry::getDAO('IssueDAO');
+		$issues =& $issueDao->getPublishedIssues($journal->getId());
 	
 		$context = array(
 			"page_title" => "KUDOS Export",
+			"issues" => $issues,
 		);
 		$this->display('index.tpl', $context);
 	}

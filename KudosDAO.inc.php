@@ -10,6 +10,6 @@
 
 
 class KudosDAO extends DAO {
-	
+
 }
 
