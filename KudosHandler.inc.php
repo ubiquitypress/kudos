@@ -116,8 +116,8 @@ class KudosHandler extends Handler {
 	function index($args, &$request) {
 
 		$user = $this->journal_manager_required($request);
-
 		$journal =& $request->getJournal();
+
 		$issueDao =& DAORegistry::getDAO('IssueDAO');
 		$issues =& $issueDao->getPublishedIssues($journal->getId());
 	
@@ -126,6 +126,44 @@ class KudosHandler extends Handler {
 			"issues" => $issues,
 		);
 		$this->display('index.tpl', $context);
+	}
+
+	function issue($args, &$request) {
+		$user = $this->journal_manager_required($request);
+		$journal =& $request->getJournal();
+
+		$issue_id = $_GET['issue_id'];
+		$issueDao =& DAORegistry::getDAO('IssueDAO');
+		$issue = $issueDao->getIssueById($issue_id, $journal->getId());
+
+		$context = array(
+			"page_title" => "KUDOS Export", 
+			"issue" => $issue,
+		);
+		$this->display('index.tpl', $context);
+	}
+
+	function email($args, &$request) {
+		$user = $this->journal_manager_required($request);
+		$journal =& $request->getJournal();
+
+		if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+			$address = $_POST["address"];
+
+			if ($address) {
+				$this->dao->save_address($address);
+			}
+		} elseif ($_SERVER['REQUEST_METHOD'] == 'GET' && $_GET['email']) {
+			$this->dao->delete_address($_GET['email']);
+		}
+
+		$emails = $this->dao->get_excluded_emails();
+
+		$context = array(
+			"page_title" => "Exclude Email from KUDOS Export",
+			"emails" => $emails,
+		);
+		$this->display('email.tpl', $context);
 	}
 
 	
