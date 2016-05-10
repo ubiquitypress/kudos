@@ -1,6 +1,7 @@
 {assign var="pageTitleTranslated" value=$page_title}
 {include file="common/header.tpl"}
 	<p><a href="email/">Exclude Email Address' from Export</a></p>
+	<div class="separator"></div>
 	<h2>Published Issues</h2>
 	<table width="100%">
 		<tr>
@@ -23,5 +24,9 @@
 		</tr>
 	{/iterate}
 	</table>
+	<div class="separator"></div>
+	<h2>Export From Date</h2>
+
+
 
 {include file="common/footer.tpl"}

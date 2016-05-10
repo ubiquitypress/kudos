@@ -140,12 +140,18 @@ class KudosHandler extends Handler {
 	    fpassthru($f);
 	}
 
-	function get_csv_data($pub_articles) {
+	function get_csv_data($pub_articles, $journal) {
 		// Get each article for an issue, get their authors and generate a
 		// row for each, and push it into the records array. Returns a 
 		// CSV from serve_csv.
 
-		$emails = $this->dao->get_excluded_emails();
+		$email_results = $this->dao->get_excluded_emails();
+		$emails = array();
+
+		foreach ($email_results as $email) {
+			array_push($emails, $email['email_address']);
+		}
+
 		$errors = array();
 		$records = array();
 
@@ -158,14 +164,23 @@ class KudosHandler extends Handler {
 			if ($doi) {
 				 $authors = $authorDao->getAuthorsBySubmissionId($article->getId());
 				 foreach ($authors as $author) {
-				 	$row = $this->build_csv_row($doi, $author);
-				 	array_push($records, $row);
+				 	if (!in_array($author->_data['email'], $emails)) {
+				 		$row = $this->build_csv_row($doi, $author);
+				 		array_push($records, $row);
+				 	}
 				 }
 				 
 			}
 		}
 
-		return $this->serve_csv($records, $filename = "export.csv", $delimiter=",");
+		$initials = $journal->getPath();
+		$year = date("Y");
+		$month = date("m");
+		$day = date("d");
+
+		$filename = "{$initials}-doi-{$year}-{$month}-{$day}.csv";
+
+		return $this->serve_csv($records, $filename = $filename, $delimiter=",");
 	
 	}
 
@@ -202,7 +217,7 @@ class KudosHandler extends Handler {
 
 		$pub_articles = $this->dao->get_articles_for_issue($issue->getId());
 
-		return $this->get_csv_data($pub_articles);
+		return $this->get_csv_data($pub_articles, $journal);
 	}
 
 	function email($args, &$request) {
