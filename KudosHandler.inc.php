@@ -126,6 +126,8 @@ class KudosHandler extends Handler {
 	}
 
 	function serve_csv($records, $filename = "export.csv", $delimiter=",") {
+		// Generate a in memory CSV, add each line to it and serve.
+
 	    $f = fopen('php://memory', 'w'); 
 	   
 	    foreach ($records as $line) { 
@@ -139,6 +141,10 @@ class KudosHandler extends Handler {
 	}
 
 	function get_csv_data($issue) {
+		// Get each article for an issue, get their authors and generate a
+		// row for each, and push it into the records array. Returns a 
+		// CSV from serve_csv.
+
 		$emails = $this->dao->get_excluded_emails();
 		$errors = array();
 		$records = array();
