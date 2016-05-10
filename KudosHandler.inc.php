@@ -74,6 +74,37 @@ class KudosHandler extends Handler {
 		$templateMgr->display($tp . $fname);
 	}
 
+	function journal_manager_required($request) {
+		$user = $request->getUser();
+		$journal = $request->getJournal();
+
+		// If we have no user, redirect to index
+		if ($user == NULL) {
+			$request->redirect(null, 'index');
+		}
+
+		// If we have a user, grab their roles from the DAO
+		$roleDao =& DAORegistry::getDAO('RoleDAO');
+		$roles =& $roleDao->getRolesByUserId($user->getId(), $journal->getId());
+
+
+		// Loop through the roles to check if the user is a Journal Manager
+		$check = false;
+		foreach ($roles as $role) {
+			if ($role->getRoleId() == ROLE_ID_JOURNAL_MANAGER) {
+				$check = true;
+			}
+		}
+
+		// If user is a journal manager, return the user, if not, redirect to the user page.
+		if ($check) {
+			return $user;
+		} else {
+			$request->redirect(null, 'user');
+		}
+
+	}
+
 	//
 	// views
 	//
@@ -83,6 +114,8 @@ class KudosHandler extends Handler {
 		/kudos/index/
 	*/
 	function index($args, &$request) {
+
+		$user = $this->journal_manager_required($request);
 
 		$journal =& $request->getJournal();
 		$issueDao =& DAORegistry::getDAO('IssueDAO');
