@@ -19,7 +19,7 @@
 			<td>{$issue->getNumber()}</td>
 			<td>{$issue->getYear()}</td>
 			<td>{if $issue->getLocalizedTitle()}{$issue->getLocalizedTitle()}{else}No Title{/if}</td>
-			<td><a href="">Export Data</a></td>
+			<td><a href="issue?issue_id={$issue->getId()}">Export Data</a></td>
 		</tr>
 	{/iterate}
 	</table>

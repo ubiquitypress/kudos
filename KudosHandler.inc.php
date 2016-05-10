@@ -140,7 +140,7 @@ class KudosHandler extends Handler {
 	    fpassthru($f);
 	}
 
-	function get_csv_data($issue) {
+	function get_csv_data($pub_articles) {
 		// Get each article for an issue, get their authors and generate a
 		// row for each, and push it into the records array. Returns a 
 		// CSV from serve_csv.
@@ -149,7 +149,6 @@ class KudosHandler extends Handler {
 		$errors = array();
 		$records = array();
 
-		$pub_articles = $this->dao->get_articles_for_issue($issue->getId());
 		$articleDao =& DAORegistry::getDAO('ArticleDAO');
 		$authorDao =& DAORegistry::getDAO('AuthorDAO');
 
@@ -201,7 +200,9 @@ class KudosHandler extends Handler {
 		$issueDao =& DAORegistry::getDAO('IssueDAO');
 		$issue = $issueDao->getIssueById($issue_id, $journal->getId());
 
-		return $this->get_csv_data($issue);
+		$pub_articles = $this->dao->get_articles_for_issue($issue->getId());
+
+		return $this->get_csv_data($pub_articles);
 	}
 
 	function email($args, &$request) {
