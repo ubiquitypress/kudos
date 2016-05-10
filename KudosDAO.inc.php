@@ -40,5 +40,31 @@ EOF;
 		return $commit;
 	}
 
+	function get_articles_for_issue($issue_id) {
+		$sql = <<< EOF
+			SELECT * FROM published_articles
+			WHERE issue_id = ?;
+EOF;
+		return $this->retrieve($sql, array($issue_id));
+	}
+
+	function get_doi($article_id) {
+		$sql = <<< EOF
+			SELECT setting_value FROM article_settings
+			WHERE setting_name = "pub-id::doi" and article_id = ?;
+EOF;
+		$setting = $this->retrieve($sql, array($article_id));
+		return $setting->fields['setting_value'];
+	}
+
+	function get_orcid($article_id) {
+		$sql = <<< EOF
+			SELECT setting_value FROM author_settings
+			WHERE setting_name = "orcid" and author_id = ?;
+EOF;
+		$setting = $this->retrieve($sql, array($article_id));
+		return $setting->fields['setting_value'];
+	}
+
 }
 

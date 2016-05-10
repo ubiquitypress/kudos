@@ -105,6 +105,65 @@ class KudosHandler extends Handler {
 
 	}
 
+	function build_csv_row($doi, $author) {
+		if ($author->_data['middleName']) {
+			$name = $author->_data['firstName'] . " " . $author->_data['middleName'] . " " . $author->_data['lastName'];
+		} else {
+			$name = $author->_data['firstName'] . " " . $author->_data['lastName'];
+		}
+		$orcid = $this->dao->get_orcid($author->_data['id']);
+
+		if ($orcid) {
+			$parts = explode("http://orcid.org/", $orcid);
+			$orcid = $parts[1];
+		}
+
+		$record = array(
+			$doi, $name, $author->_data['email'], $orcid
+		);
+
+		return $record;
+	}
+
+	function serve_csv($records, $filename = "export.csv", $delimiter=",") {
+	    $f = fopen('php://memory', 'w'); 
+	   
+	    foreach ($records as $line) { 
+	        fputcsv($f, $line, $delimiter); 
+	    }
+
+	    fseek($f, 0);
+	    header('Content-Type: application/csv');
+	    header('Content-Disposition: attachment; filename="'.$filename.'";');
+	    fpassthru($f);
+	}
+
+	function get_csv_data($issue) {
+		$emails = $this->dao->get_excluded_emails();
+		$errors = array();
+		$records = array();
+
+		$pub_articles = $this->dao->get_articles_for_issue($issue->getId());
+		$articleDao =& DAORegistry::getDAO('ArticleDAO');
+		$authorDao =& DAORegistry::getDAO('AuthorDAO');
+
+		foreach ($pub_articles as $pub_article) {
+			$article =& $articleDao->getArticle($pub_article['article_id']);
+			$doi = $this->dao->get_doi($article->getId());
+			if ($doi) {
+				 $authors = $authorDao->getAuthorsBySubmissionId($article->getId());
+				 foreach ($authors as $author) {
+				 	$row = $this->build_csv_row($doi, $author);
+				 	array_push($records, $row);
+				 }
+				 
+			}
+		}
+
+		return $this->serve_csv($records, $filename = "export.csv", $delimiter=",");
+	
+	}
+
 	//
 	// views
 	//
@@ -136,11 +195,7 @@ class KudosHandler extends Handler {
 		$issueDao =& DAORegistry::getDAO('IssueDAO');
 		$issue = $issueDao->getIssueById($issue_id, $journal->getId());
 
-		$context = array(
-			"page_title" => "KUDOS Export", 
-			"issue" => $issue,
-		);
-		$this->display('index.tpl', $context);
+		return $this->get_csv_data($issue);
 	}
 
 	function email($args, &$request) {
