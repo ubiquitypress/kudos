@@ -1,5 +1,6 @@
 {assign var="pageTitleTranslated" value=$page_title}
 {include file="common/header.tpl"}
+	<p><a href="email/">Exclude Email Address' from Export</a></p>
 	<h2>Published Issues</h2>
 	<table width="100%">
 		<tr>
