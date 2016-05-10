@@ -66,5 +66,13 @@ EOF;
 		return $setting->fields['setting_value'];
 	}
 
+	function get_published_date_articles($params) {
+		$sql = <<< EOF
+			SELECT * FROM published_articles
+			WHERE date_published BETWEEN ? AND ?;
+EOF;
+		return $this->retrieve($sql, array($params));
+	}
+
 }
 

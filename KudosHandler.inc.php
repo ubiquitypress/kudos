@@ -199,6 +199,15 @@ class KudosHandler extends Handler {
 
 		$issueDao =& DAORegistry::getDAO('IssueDAO');
 		$issues =& $issueDao->getPublishedIssues($journal->getId());
+
+		if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+			$from = date_create($_POST['from']);
+			$to = date_create($_POST['to']);
+			
+			$pub_articles = $this->dao->get_published_date_articles(array(date_format($from, 'Y-m-d'), date_format($to, 'Y-m-d')));
+
+			return $this->get_csv_data($pub_articles, $journal);
+		}
 	
 		$context = array(
 			"page_title" => "KUDOS Export",
