@@ -18,6 +18,7 @@ class KudosPlugin extends GenericPlugin {
 		}
 		if($this->getEnabled()) {
 			HookRegistry::register("LoadHandler", array(&$this, "handleRequest"));
+			HookRegistry::register('Templates::Manager::Index::ManagementPages', array(&$this, 'kudos_link'));
 			$tm =& TemplateManager::getManager();
 			$tm->assign("kudosEnabled", true);
 			define('KUDOS_PLUGIN_NAME', $this->getName());
@@ -49,6 +50,19 @@ class KudosPlugin extends GenericPlugin {
 	
 	function getTemplatePath() {
 		return parent::getTemplatePath() . 'templates/';
+	}
+
+	function kudos_link($hookName, $args) {
+		$output =& $args[2];
+
+		$templateMgr =& TemplateManager::getManager();
+		$currentJournal = $templateMgr->get_template_vars('currentJournal');
+		$output .=  <<< EOF
+		<li><a href="{$currentJournal->getUrl()}/kudos/">Kudos Export</a></li>
+EOF;
+
+		
+		return false;
 	}
 
 
